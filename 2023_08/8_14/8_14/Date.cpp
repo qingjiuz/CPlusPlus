@@ -3,9 +3,17 @@
 
 Date::Date(int year, int month, int day)
 {
-	_year = year;
-	_month = month;
-	_day = day;
+	if (month > 0 && month < 13 && day > 0 && day <= GetMonthDay(year, month))
+	{
+		_year = year;
+		_month = month;
+		_day = day;
+	}
+	else
+	{
+		cout << "非法日期" << endl;
+		assert(false);
+	}
 }
 
 Date::Date(const Date& d)
@@ -40,7 +48,7 @@ Date& Date::operator=(const Date& d)
 }
 
 //d1 == d2
-bool Date::operator==(const Date& d)
+bool Date::operator==(const Date& d) const
 {
 	return _year == d._year
 		&& _month == d._month
@@ -48,13 +56,13 @@ bool Date::operator==(const Date& d)
 }
 
 //d1 != d2
-bool Date::operator!=(const Date& d)
+bool Date::operator!=(const Date& d) const
 {
 	return !(*this == d);
 }
 
 //d1 < d2
-bool Date::operator<(const Date& d)
+bool Date::operator<(const Date& d) const
 {
 	if (_year < d._year)
 	{
@@ -73,25 +81,25 @@ bool Date::operator<(const Date& d)
 }
 
 //d1 <= d2
-bool Date::operator<=(const Date& d)
+bool Date::operator<=(const Date& d) const
 {
 	return *this < d || *this == d;
 }
 
 //d1 > d2
-bool Date::operator>(const Date& d)
+bool Date::operator>(const Date& d) const
 {
 	return !(*this <= d);
 }
 
 //d1 >= d2
-bool Date::operator>=(const Date& d)
+bool Date::operator>=(const Date& d) const
 {
 	return !(*this < d);
 }
 
 //日期 + 天数
-Date Date::operator+(int day)
+Date Date::operator+(int day) const
 {
 	//每次调用都会调用一次拷贝构造
 	//Date tmp = *this;
@@ -110,7 +118,7 @@ Date Date::operator+(int day)
 
 	//这里使用+=重载运算符不需要再调用拷贝构造
 	Date tmp = *this;
-	tmp._day += day;
+	tmp += day;
 	return tmp;
 }
 
@@ -144,7 +152,7 @@ Date& Date::operator+=(int day)
 }
 
 // 日期 - 天数
-Date Date::operator-(int day)
+Date Date::operator-(int day) const
 {
 	//Date tmp = *this;
 	//
@@ -238,17 +246,17 @@ Date Date::operator--(int)
 	return tmp;
 }
 
-int GetYearDay(int year)
-{
-	if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
-	{
-		return 366;
-	}
-	return 365;
-}
+//int GetYearDay(int year)
+//{
+//	if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))
+//	{
+//		return 366;
+//	}
+//	return 365;
+//}
 
 // 日期 - 日期 = 之间的天数
-int Date::operator-(const Date& d)
+int Date::operator-(const Date& d) const
 {
 	//不够准确
 	//Date tmp = d;
@@ -308,4 +316,34 @@ int Date::operator-(const Date& d)
 		++day;
 	}
 	return day * flag;
+}
+
+// 流插入
+ostream& operator<<(ostream& out, const Date& d)
+{
+	cout << d._year << "年" << d._month << "月" << d._day << "日" << endl;
+	return out;
+}
+
+// 流提取
+istream& operator>>(istream& in, Date& d)
+{
+	int year, month, day;
+	cin >> year >> month >> day;
+	if (month > 0 && month < 13 && day > 0 && day <= d.GetMonthDay(year, month))
+	{
+		d._year = year;
+		d._month = month;
+		d._day = day;
+	}
+	else
+	{
+		cout << "非法日期" << endl;
+		assert(false);
+	}
+	
+	return in;
+
+	//cin >> d._year >> d._month >> d._day;
+	//return in;
 }
