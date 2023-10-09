@@ -86,10 +86,143 @@ namespace self_string
 			_str[_size] = '\0';
 		}
 
+		void append(const char* str)
+		{
+			size_t len = strlen(str);
+			if (_size + len > _capacity)
+			{
+				reserve(_size + len);
+			}
+
+			strcpy(_str + _size, str);
+			_size += len;
+		}
+
+		string& operator+=(char c)
+		{
+			push_back(c);
+			return *this;
+		}
+
+		string& operator+=(const char* str)
+		{
+			append(str);
+			return *this;
+		}
+
+		void insert(size_t pos, size_t n, char c)
+		{
+			assert(pos < _size);
+			
+			if (_size + n > _capacity)
+			{
+				reserve(_size + n);
+			}
+
+			size_t end = _size;
+			// pos可以为0 --> 因为end类型为size_t --> 没有负数
+			// 当end--到-1时，因为size_t没有负数，因此为整数的最大值，默认字符串不会有这么长
+			// 所以可以利用这个特性作限制条件
+			while (end >= pos && end != npos)	
+			{
+				_str[end + n] = _str[end];
+				--end;
+			}
+
+			for (size_t i = 0; i < n; i++)
+			{
+				_str[pos + i] = c;
+			}
+
+			_size += n;
+		}
+
+		void insert(size_t pos, const char* str)
+		{
+			assert(pos < _size);
+
+			size_t len = strlen(str);
+			if (_size + len > _capacity)
+			{
+				reserve(_size + len);
+			}
+
+			size_t end = _size;
+			while (end >= pos && end != npos)
+			{
+				_str[end + len] = _str[end];
+				--end;
+			}
+
+			for (size_t i = 0; i < len; i++)
+			{
+				_str[pos + i] = str[i];
+			}
+
+			_size += len;
+		}
+
+		void erase(size_t pos, size_t len = npos)
+		{
+			assert(pos <= _size);
+
+			if (len == npos || len + pos > _size)
+			{
+				_str[pos] = '\0';
+				_size = pos;
+			}
+			else
+			{
+				for (size_t i = pos; i < _size; i++)
+				{
+					_str[i] = _str[pos + len + i];
+				}
+				_size -= len;
+			}
+		}
+
+		size_t find(char c, size_t pos = 0)
+		{
+			assert(pos < _size);
+
+			while (pos < _size)
+			{
+				if (_str[pos] == c)
+				{
+					return pos;
+				}
+				++pos;
+			}
+
+			return npos;
+		}
+
+		size_t find(const char* str, size_t pos = 0)
+		{
+			assert(pos < _size);
+
+			const char* tmp = strstr(_str + pos, str);
+			if (tmp)
+			{
+				return tmp - _str;
+			}
+			else
+			{
+				return npos;
+			}
+		}
+
+		// 需要深拷贝配合使用
+		//string substr(size_t pos = 0, size_t len = npos)
+
 
 	private:
 		char* _str;
 		size_t _size;
 		size_t _capacity;
+
+	public:
+		const static size_t npos;
 	};
+	const size_t string::npos = -1;
 }
